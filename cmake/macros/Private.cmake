@@ -1215,10 +1215,6 @@ function(_pxr_library NAME)
 
     # PIC is required by shared libraries. It's on for static libraries
     # because we'll likely link them into a shared library.
-    #
-    # We set PUBLIC_HEADER so we install directly from the source tree.
-    # We don't want to install the headers copied to the build tree
-    # because they have #line directives embedded to aid in debugging.
     _get_folder("" folder)
     set_target_properties(${NAME}
         PROPERTIES
@@ -1227,7 +1223,6 @@ function(_pxr_library NAME)
             IMPORT_PREFIX "${args_PREFIX}"            
             PREFIX "${args_PREFIX}"
             SUFFIX "${args_SUFFIX}"
-            PUBLIC_HEADER "${args_PUBLIC_HEADERS}"
     )
 
     set(pythonEnabled "PXR_PYTHON_ENABLED=1")
@@ -1293,14 +1288,35 @@ function(_pxr_library NAME)
     # Set up the install.
     #
 
-    if(isObject)
-        get_target_property(install_headers ${NAME} PUBLIC_HEADER)
-        if (install_headers)
+    # Install public headers. 
+    #
+    # This would typically be done via:
+    #
+    # install(TARGETS ... PUBLIC_HEADER DESTINATION ${headerInstallPrefix})
+    #
+    # However, that command does not preserve subdirectory structure, so if a
+    # public header were specified as subdir/header.h, it would just be
+    # installed in ${headerInstallPrefix}/header.h. So we need to roll our own
+    # loop that parses out the subdirectory and manually appends it to the
+    # include directory.
+    if(args_PUBLIC_HEADERS)
+        foreach(header ${args_PUBLIC_HEADERS})
+            set(headerDestination "${headerInstallPrefix}")
+
+            get_filename_component(headerSubdir ${header} DIRECTORY)
+            if (headerSubdir)
+                set(headerDestination "${headerDestination}/${headerSubdir}")
+            endif()
+
             install(
-                FILES ${install_headers}
-                DESTINATION ${headerInstallPrefix}
+                FILES ${header}
+                DESTINATION ${headerDestination}
             )
-        endif()
+        endforeach()
+    endif()
+
+    if(isObject)
+        # Nothing
     else()
         # Do not include plugins libs in externally linkable targets
         if(isPlugin)
@@ -1309,7 +1325,6 @@ function(_pxr_library NAME)
                 LIBRARY DESTINATION ${libInstallPrefix}
                 ARCHIVE DESTINATION ${libInstallPrefix}
                 RUNTIME DESTINATION ${libInstallPrefix}
-                PUBLIC_HEADER DESTINATION ${headerInstallPrefix}
             )
             if(WIN32)
                 install(
@@ -1325,7 +1340,6 @@ function(_pxr_library NAME)
                 LIBRARY DESTINATION ${libInstallPrefix}
                 ARCHIVE DESTINATION ${libInstallPrefix}
                 RUNTIME DESTINATION ${libInstallPrefix}
-                PUBLIC_HEADER DESTINATION ${headerInstallPrefix}
             )
             if(WIN32)
                 install(
@@ -1342,10 +1356,9 @@ function(_pxr_library NAME)
                 LIBRARY DESTINATION ${libInstallPrefix}
                 ARCHIVE DESTINATION ${libInstallPrefix}
                 RUNTIME DESTINATION ${libInstallPrefix}
-                PUBLIC_HEADER DESTINATION ${headerInstallPrefix}
             )
         endif()
-        
+    
         if(NOT isPlugin)
             export(TARGETS ${NAME}
                 APPEND
