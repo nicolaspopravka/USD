@@ -16,6 +16,35 @@ set(PXR_MINOR_VERSION "@PXR_MINOR_VERSION@")
 set(PXR_PATCH_VERSION "@PXR_PATCH_VERSION@")
 set(PXR_VERSION "@PXR_VERSION@")
 
+include(CMakeFindDependencyMacro)
+
+# If MaterialX support was enabled for this USD build, try to find the
+# associated import targets by invoking the same FindMaterialX.cmake
+# module that was used for that build. This can be overridden by
+# specifying a different MaterialX_DIR when running cmake.
+if(@PXR_ENABLE_MATERIALX_SUPPORT@)
+    if (NOT DEFINED MaterialX_DIR)
+        set(MaterialX_DIR "@MaterialX_DIR@")
+    endif()
+    find_package(MaterialX REQUIRED)
+endif()
+
+# Similar to MaterialX above, we are using Imath's cmake package config, so set
+# the Imath_DIR accordingly to find the associated import targets which were
+# used for this USD build. 
+# Note that we only need to do this, when it is determined by Imath is being
+# used instead of OpenExr (refer Packages.cmake)
+if(@Imath_FOUND@)
+    if (NOT DEFINED Imath_DIR)
+        set(Imath_DIR "@Imath_DIR@")
+    endif()
+    find_package(Imath REQUIRED)
+endif()
+
+if(@PXR_ENABLE_PYTHON_SUPPORT@)
+    find_dependency(Python @PYTHON_VERSION@ EXACT COMPONENTS Development)
+endif()
+
 include("${PXR_CMAKE_DIR}/cmake/pxrTargets.cmake")
 set(libs "@PXR_ALL_LIBS@")
 set(PXR_LIBRARIES "")
