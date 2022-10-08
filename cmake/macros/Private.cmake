@@ -1301,7 +1301,9 @@ function(_pxr_library NAME)
             SUFFIX "${args_SUFFIX}"
     )
 
-    set(pythonEnabled "PXR_PYTHON_ENABLED=1")
+    if (PXR_ENABLE_PYTHON_SUPPORT)
+        set(pythonEnabled "PXR_PYTHON_ENABLED=1")
+    endif()
     if(TARGET shared_libs)
         set(pythonModulesEnabled "PXR_PYTHON_MODULES_ENABLED=1")
     endif()
