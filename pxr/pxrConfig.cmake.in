@@ -16,6 +16,12 @@ set(PXR_MINOR_VERSION "@PXR_MINOR_VERSION@")
 set(PXR_PATCH_VERSION "@PXR_PATCH_VERSION@")
 set(PXR_VERSION "@PXR_VERSION@")
 
+include(CMakeFindDependencyMacro)
+
+if(@PXR_ENABLE_PYTHON_SUPPORT@)
+    find_dependency(Python @PYTHON_VERSION@ EXACT COMPONENTS Development)
+endif()
+
 include("${PXR_CMAKE_DIR}/cmake/pxrTargets.cmake")
 set(libs "@PXR_ALL_LIBS@")
 set(PXR_LIBRARIES "")
