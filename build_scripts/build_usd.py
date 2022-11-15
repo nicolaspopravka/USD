@@ -1687,11 +1687,11 @@ def InstallUSD(context, force, buildArgs):
                 # According to FindPythonLibs.cmake these are the variables
                 # to set to specify which Python installation to use.
                 extraArgs.append('-DPYTHON_EXECUTABLE="{pyExecPath}"'
-                                 .format(pyExecPath=pythonInfo[0]))
+                                 .format(pyExecPath=pythonInfo[0].replace('\\', '/')))
                 extraArgs.append('-DPYTHON_LIBRARY="{pyLibPath}"'
-                                 .format(pyLibPath=pythonInfo[1]))
+                                 .format(pyLibPath=pythonInfo[1].replace('\\', '/')))
                 extraArgs.append('-DPYTHON_INCLUDE_DIR="{pyIncPath}"'
-                                 .format(pyIncPath=pythonInfo[2]))
+                                 .format(pyIncPath=pythonInfo[2].replace('\\', '/')))
         else:
             extraArgs.append('-DPXR_ENABLE_PYTHON_SUPPORT=OFF')
 
