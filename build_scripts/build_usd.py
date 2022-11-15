@@ -239,6 +239,13 @@ def GetPythonInfo(context):
     else:
         raise RuntimeError("Platform not supported")
 
+    if Windows():
+        # Replace backslashes with forward slashes in paths. CMake could
+        # fail to parse the strings otherwise.
+        pythonExecPath = pythonExecPath.replace('\\', '/')
+        pythonLibPath = pythonLibPath.replace('\\', '/')
+        pythonIncludeDir = pythonIncludeDir.replace('\\', '/')
+
     return (pythonExecPath, pythonLibPath, pythonIncludeDir, pythonVersion)
 
 def GetCPUCount():
@@ -752,14 +759,12 @@ def InstallBoost_Helper(context, force, buildArgs):
             # take the following approach:
             projectPath = 'python-config.jam'
             with open(projectPath, 'w') as projectFile:
-                # Note that we must escape any special characters, like 
-                # backslashes for jam, hence the mods below for the path 
-                # arguments. Also, if the path contains spaces jam will not
-                # handle them well. Surround the path parameters in quotes.
+                # If the path contains spaces jam will not handle them well.
+                # Surround the path parameters in quotes.
                 projectFile.write('using python : %s\n' % pythonInfo[3])
-                projectFile.write('  : "%s"\n' % pythonInfo[0].replace("\\","/"))
-                projectFile.write('  : "%s"\n' % pythonInfo[2].replace("\\","/"))
-                projectFile.write('  : "%s"\n' % os.path.dirname(pythonInfo[1]).replace("\\","/"))
+                projectFile.write('  : "%s"\n' % pythonInfo[0])
+                projectFile.write('  : "%s"\n' % pythonInfo[2])
+                projectFile.write('  : "%s"\n' % os.path.dirname(pythonInfo[1]))
                 if context.buildDebug and context.debugPython:
                     projectFile.write('  : <python-debugging>on\n')
                 projectFile.write('  ;\n')
@@ -1498,11 +1503,11 @@ def InstallUSD(context, force, buildArgs):
                 # According to FindPythonLibs.cmake these are the variables
                 # to set to specify which Python installation to use.
                 extraArgs.append('-DPYTHON_EXECUTABLE="{pyExecPath}"'
-                                 .format(pyExecPath=pythonInfo[0].replace('\\', '/')))
+                                 .format(pyExecPath=pythonInfo[0]))
                 extraArgs.append('-DPYTHON_LIBRARY="{pyLibPath}"'
-                                 .format(pyLibPath=pythonInfo[1].replace('\\', '/')))
+                                 .format(pyLibPath=pythonInfo[1]))
                 extraArgs.append('-DPYTHON_INCLUDE_DIR="{pyIncPath}"'
-                                 .format(pyIncPath=pythonInfo[2].replace('\\', '/')))
+                                 .format(pyIncPath=pythonInfo[2]))
         else:
             extraArgs.append('-DPXR_ENABLE_PYTHON_SUPPORT=OFF')
 
