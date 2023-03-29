@@ -32,6 +32,7 @@
 #include "pxr/base/arch/api.h"
 #include "pxr/base/arch/defines.h"
 #include "pxr/base/arch/inttypes.h"
+#include <algorithm>
 #include <memory>
 #include <cstdio>
 #include <string>
@@ -420,6 +421,18 @@ enum ArchFileAdvice {
 ARCH_API
 void ArchFileAdvise(FILE *file, int64_t offset, size_t count,
                     ArchFileAdvice adv);
+
+#if defined(ARCH_OS_WINDOWS)
+
+/// Converts all forward slashes to back slashes - Windows-only
+inline std::string ArchWindowsPreferredPath(const std::string& inPath)
+{
+    std::string path = inPath;
+    std::replace(path.begin(), path.end(), '/', '\\');
+    return path;
+}
+
+#endif
 
 ///@}
 
