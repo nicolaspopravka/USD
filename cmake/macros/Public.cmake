@@ -930,6 +930,7 @@ function(pxr_toplevel_prologue)
             _get_install_dir("lib" libInstallPrefix)
             install(
                 TARGETS usd_ms
+                EXPORT pxrTargets
                 LIBRARY DESTINATION ${libInstallPrefix}
                 ARCHIVE DESTINATION ${libInstallPrefix}
                 RUNTIME DESTINATION ${libInstallPrefix}
@@ -1066,6 +1067,11 @@ function(pxr_monolithic_epilogue)
             POSITION_INDEPENDENT_CODE ON
             PREFIX "${PXR_LIB_PREFIX}"
             IMPORT_PREFIX "${PXR_LIB_PREFIX}"
+    )
+
+    install(
+        TARGETS usd_m
+        EXPORT pxrTargets
     )
 
     # Adding $<TARGET_OBJECTS:foo> will not bring along compile
