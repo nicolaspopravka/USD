@@ -734,8 +734,10 @@ def InstallBoost_Helper(context, force, buildArgs):
 
         # For cross-compilation on macOS we need to specify the architecture
         # for both the bootstrap and the b2 phase of building boost.
-        bootstrapCmd = '{bootstrap} --prefix="{instDir}"'.format(
-            bootstrap=bootstrap, instDir=context.instDir)
+        bootstrapCmd = '{bootstrap}'.format(bootstrap=bootstrap)
+
+        if not Windows():
+            bootstrapCmd += ' --prefix="{instDir}"'.format(instDir=context.instDir)
 
         macOSArchitecture = ""
         macOSArch = ""
